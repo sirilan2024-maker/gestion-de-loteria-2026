@@ -13,7 +13,7 @@
   <meta name="description" content="Gestión profesional de reparto, series, cobro y beneficios de Lotería de Navidad">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎟️</text></svg>">
   <link rel="manifest" href="./manifest.json">
-  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -75,8 +75,12 @@
 <body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen overflow-x-hidden">
   <div id="root"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js"></script>
   <script type="text/babel">
-    const { useState, useEffect, useMemo } = React;
+    const { useState, useEffect, useMemo, useRef } = React;
+
+    const supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
     const INITIAL_DEMO_DATA = {
       campaigns: [
@@ -254,20 +258,133 @@
       return isNaN(d.getTime()) ? dateStr : d.toLocaleDateString('es-ES');
     };
 
+    function LoginScreen() {
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [mode, setMode] = useState('login');
+      const [busy, setBusy] = useState(false);
+      const [message, setMessage] = useState('');
+
+      const submit = async (e) => {
+        e.preventDefault();
+        setBusy(true); setMessage('');
+        try {
+          const result = mode === 'login'
+            ? await supabaseClient.auth.signInWithPassword({ email, password })
+            : await supabaseClient.auth.signUp({ email, password });
+          if (result.error) throw result.error;
+          if (mode === 'signup' && !result.data.session) {
+            setMessage('Cuenta creada. Revisa tu correo para confirmar la cuenta y después inicia sesión.');
+            setMode('login');
+          }
+        } catch (err) {
+          setMessage(err.message || 'No se pudo completar la operación.');
+        } finally { setBusy(false); }
+      };
+
+      return (
+        <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="text-4xl mb-2">🎟️</div>
+              <h1 className="text-2xl font-black">Control Lotería de Navidad</h1>
+              <p className="text-slate-400 text-sm mt-2">Datos sincronizados entre ordenador y móvil</p>
+            </div>
+            <form onSubmit={submit} className="space-y-4">
+              <input type="email" required value={email} onChange={e=>setEmail(e.target.value)}
+                placeholder="Correo electrónico" className="w-full rounded-xl bg-slate-800 border border-slate-700 p-3 text-white outline-none" />
+              <input type="password" required minLength="6" value={password} onChange={e=>setPassword(e.target.value)}
+                placeholder="Contraseña" className="w-full rounded-xl bg-slate-800 border border-slate-700 p-3 text-white outline-none" />
+              <button disabled={busy} className="w-full rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black p-3 disabled:opacity-50">
+                {busy ? 'Procesando…' : mode === 'login' ? 'Entrar' : 'Crear cuenta'}
+              </button>
+            </form>
+            {message && <div className="mt-4 rounded-xl bg-slate-800 p-3 text-sm text-amber-300">{message}</div>}
+            <button onClick={()=>{setMode(mode==='login'?'signup':'login');setMessage('');}}
+              className="w-full mt-4 text-sm text-slate-400 hover:text-white">
+              {mode === 'login' ? 'Crear una cuenta nueva' : 'Ya tengo una cuenta'}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     function App() {
-      const [data, setData] = useState(() => {
-        const saved = localStorage.getItem('control_loteria_db_v15');
-        if (saved) {
-          try { return JSON.parse(saved); } catch(e) { console.error(e); }
-        }
-        return INITIAL_DEMO_DATA;
-      });
+      const [data, setData] = useState(null);
+      const [session, setSession] = useState(null);
+      const [cloudReady, setCloudReady] = useState(false);
+      const [syncing, setSyncing] = useState(false);
+      const cloudLoadedRef = useRef(false);
+      const saveTimerRef = useRef(null);
 
       useEffect(() => {
-        localStorage.setItem('control_loteria_db_v15', JSON.stringify(data));
-      }, [data]);
+        let mounted = true;
+        const loadForSession = async (currentSession) => {
+          if (!currentSession) {
+            if (mounted) { setSession(null); setData(null); setCloudReady(false); }
+            return;
+          }
+          setSession(currentSession);
+          setCloudReady(false);
+          try {
+            const { data: row, error } = await supabaseClient
+              .from('app_state').select('data').eq('user_id', currentSession.user.id).maybeSingle();
+            if (error) throw error;
 
-      const [currentTab, setCurrentTab] = useState('dashboard');
+            let initialData = row?.data;
+            if (!initialData) {
+              const local = localStorage.getItem('control_loteria_db_v15');
+              try { initialData = local ? JSON.parse(local) : INITIAL_DEMO_DATA; } catch (_) { initialData = INITIAL_DEMO_DATA; }
+              const { error: upsertError } = await supabaseClient.from('app_state').upsert({
+                user_id: currentSession.user.id,
+                data: initialData,
+                updated_at: new Date().toISOString()
+              }, { onConflict: 'user_id' });
+              if (upsertError) throw upsertError;
+            }
+            if (mounted) {
+              cloudLoadedRef.current = true;
+              setData(initialData);
+              setCloudReady(true);
+            }
+          } catch (err) {
+            console.error('Error cargando datos de la nube:', err);
+            if (mounted) {
+              setData(null);
+              setCloudReady(false);
+              alert('No se pudieron cargar los datos de la nube. Comprueba la configuración de Supabase.');
+            }
+          }
+        };
+
+        supabaseClient.auth.getSession().then(({ data }) => loadForSession(data.session));
+        const { data: listener } = supabaseClient.auth.onAuthStateChange((_event, currentSession) => loadForSession(currentSession));
+        return () => { mounted = false; listener.subscription.unsubscribe(); };
+      }, []);
+
+      useEffect(() => {
+        if (!cloudReady || !session || !data || !cloudLoadedRef.current) return;
+        clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = setTimeout(async () => {
+          setSyncing(true);
+          localStorage.setItem('control_loteria_db_v15', JSON.stringify(data));
+          const { error } = await supabaseClient.from('app_state').upsert({
+            user_id: session.user.id,
+            data,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id' });
+          if (error) console.error('Error sincronizando con la nube:', error);
+          setSyncing(false);
+        }, 600);
+        return () => clearTimeout(saveTimerRef.current);
+      }, [data, session, cloudReady]);
+
+      if (!session) return <LoginScreen />;
+      if (!cloudReady || !data) {
+        return <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+          <div className="text-center"><div className="text-4xl mb-3">☁️</div><p className="font-bold">Cargando datos…</p><p className="text-slate-500 text-sm mt-1">Conectando con la base de datos</p></div>
+        </div>;
+      }
       const [movTabFilter, setMovTabFilter] = useState('todos');
       const [isQuickRepartoOpen, setIsQuickRepartoOpen] = useState(false);
       const [preselectedPersonId, setPreselectedPersonId] = useState('');
