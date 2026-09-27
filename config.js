@@ -3,4 +3,4 @@
 // La ANON KEY está diseñada para usarse en el navegador; la seguridad real
 // la proporcionan las políticas RLS de supabase_schema.sql.
 window.SUPABASE_URL = 'https://fuylbmcgzxurwkytwxhu.supabase.co';
-window.SUPABASE_ANON_KEY = 'sb-publishable_AQUÍ_TU_CLAVE_COMPLETA';
+window.SUPABASE_ANON_KEY = 'sb_publishable_mZl6EjgNUaNnOT6U2-PpyA_rzV3nAp7';
