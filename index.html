@@ -310,12 +310,12 @@
     }
 
     function App() {
-      const [data, setData] = useState(null);
+      const [data, setData] = useState(INITIAL_DEMO_DATA);
       const [session, setSession] = useState(null);
       const [cloudReady, setCloudReady] = useState(false);
       const [syncing, setSyncing] = useState(false);
       const cloudLoadedRef = useRef(false);
-      const saveTimerRef = useRef(null);
+      const saveTimerRef = useRef(null);       const [movTabFilter, setMovTabFilter] = useState('todos');       const [isQuickRepartoOpen, setIsQuickRepartoOpen] = useState(false);       const [preselectedPersonId, setPreselectedPersonId] = useState('');       const [isAddLotteryOpen, setIsAddLotteryOpen] = useState(false);       const [isAddClubLotteryOpen, setIsAddClubLotteryOpen] = useState(false);       const [isPayLoteroOpen, setIsPayLoteroOpen] = useState(false);       const [isReturnLoteroOpen, setIsReturnLoteroOpen] = useState(false);       const [isAddPersonOpen, setIsAddPersonOpen] = useState(false);       const [isImportPeopleOpen, setIsImportPeopleOpen] = useState(false);       const [isAddPaymentOpen, setIsAddPaymentOpen] = useState(false);       const [selectedPersonForPayment, setSelectedPersonForPayment] = useState(null);       const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);       const [selectedReturnDist, setSelectedReturnDist] = useState(null);       const [isCampaignsModalOpen, setIsCampaignsModalOpen] = useState(false);       const [selectedPersonDetail, setSelectedPersonDetail] = useState(null);       const [expandedPersonIds, setExpandedPersonIds] = useState({});       const [toastMessage, setToastMessage] = useState(null);
 
       useEffect(() => {
         let mounted = true;
@@ -385,23 +385,8 @@
           <div className="text-center"><div className="text-4xl mb-3">☁️</div><p className="font-bold">Cargando datos…</p><p className="text-slate-500 text-sm mt-1">Conectando con la base de datos</p></div>
         </div>;
       }
-      const [movTabFilter, setMovTabFilter] = useState('todos');
-      const [isQuickRepartoOpen, setIsQuickRepartoOpen] = useState(false);
-      const [preselectedPersonId, setPreselectedPersonId] = useState('');
-      const [isAddLotteryOpen, setIsAddLotteryOpen] = useState(false);
-      const [isAddClubLotteryOpen, setIsAddClubLotteryOpen] = useState(false);
-      const [isPayLoteroOpen, setIsPayLoteroOpen] = useState(false);
-      const [isReturnLoteroOpen, setIsReturnLoteroOpen] = useState(false);
-      const [isAddPersonOpen, setIsAddPersonOpen] = useState(false);
-      const [isImportPeopleOpen, setIsImportPeopleOpen] = useState(false);
-      const [isAddPaymentOpen, setIsAddPaymentOpen] = useState(false);
-      const [selectedPersonForPayment, setSelectedPersonForPayment] = useState(null);
-      const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
-      const [selectedReturnDist, setSelectedReturnDist] = useState(null);
-      const [isCampaignsModalOpen, setIsCampaignsModalOpen] = useState(false);
-      const [selectedPersonDetail, setSelectedPersonDetail] = useState(null);
-      const [expandedPersonIds, setExpandedPersonIds] = useState({});
-      const [toastMessage, setToastMessage] = useState(null);
+      
+      
 
       const showToast = (msg, type = 'success') => {
         setToastMessage({ text: msg, type });
