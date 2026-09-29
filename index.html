@@ -311,6 +311,7 @@
 
     function App() {
       const [data, setData] = useState(INITIAL_DEMO_DATA);
+      const [currentTab, setCurrentTab] = useState('dashboard');
       const [session, setSession] = useState(null);
       const [cloudReady, setCloudReady] = useState(false);
       const [syncing, setSyncing] = useState(false);
