@@ -378,16 +378,7 @@
         }, 600);
         return () => clearTimeout(saveTimerRef.current);
       }, [data, session, cloudReady]);
-
-      if (!session) return <LoginScreen />;
-      if (!cloudReady || !data) {
-        return <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-          <div className="text-center"><div className="text-4xl mb-3">☁️</div><p className="font-bold">Cargando datos…</p><p className="text-slate-500 text-sm mt-1">Conectando con la base de datos</p></div>
-        </div>;
-      }
-      
-      
-
+  
       const showToast = (msg, type = 'success') => {
         setToastMessage({ text: msg, type });
         setTimeout(() => setToastMessage(null), 3500);
@@ -1316,7 +1307,17 @@
         if (movTabFilter === 'todos') return currentMovements;
         return currentMovements.filter(m => m.category === movTabFilter);
       }, [currentMovements, movTabFilter]);
+if (!session) return <LoginScreen />;
 
+if (!cloudReady || !data) {
+  return <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+    <div className="text-center">
+      <div className="text-4xl mb-3">☁️</div>
+      <p className="font-bold">Cargando datos…</p>
+      <p className="text-slate-500 text-sm mt-1">Conectando con la base de datos</p>
+    </div>
+  </div>;
+}
       return (
         <div className="min-h-screen max-w-full overflow-x-hidden bg-slate-900 text-slate-100 flex flex-col md:flex-row pb-20 md:pb-0 font-sans">
           
