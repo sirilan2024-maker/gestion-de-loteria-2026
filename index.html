@@ -409,9 +409,14 @@ const priceProfiles = data?.settings?.priceProfiles || [
   return data.lotteryEntries.filter(e => e.campaignId === activeCampaign.id);
 }, [data, activeCampaign.id]);
 
-      const currentDistributions = useMemo(() => {
-        return data.distributions.filter(d => d.campaignId === activeCampaign.id && d.status !== 'cancelled' && d.decimos > 0);
-      }, [data.distributions, activeCampaign.id]);
+    const currentDistributions = useMemo(() => {
+  if (!data) return [];
+  return data.distributions.filter(
+    d => d.campaignId === activeCampaign.id &&
+         d.status !== 'cancelled' &&
+         d.decimos > 0
+  );
+}, [data, activeCampaign.id]);
 
       const currentPayments = useMemo(() => {
         return (data.payments || []).filter(p => p.campaignId === activeCampaign.id);
