@@ -398,12 +398,11 @@
 }, [data]);
 
       const isCampaignClosed = activeCampaign.status === 'closed';
-      const clubEntityName = data.settings.clubEntityName || '⭐ Lotería de la Peña / Asociación';
-      const priceProfiles = data.settings.priceProfiles || [
-        { id: 'prof_1', name: 'Estándar (+3€ beneficio)', costPrice: 20, surcharge: 3 },
-        { id: 'prof_2', name: 'Reducido (+2€ beneficio)', costPrice: 20, surcharge: 2 }
-      ];
-
+const clubEntityName = data?.settings?.clubEntityName || '⭐ Lotería de la Peña / Asociación';
+const priceProfiles = data?.settings?.priceProfiles || [
+  { id: 'prof_1', name: 'Estándar (+3€ beneficio)', costPrice: 20, surcharge: 3 },
+  { id: 'prof_2', name: 'Reducido (+2€ beneficio)', costPrice: 20, surcharge: 2 }
+];
       // --- FILTROS ESTRICTOS POR CAMPAÑA ACTIVA ---
       const currentLotteryEntries = useMemo(() => {
         return data.lotteryEntries.filter(e => e.campaignId === activeCampaign.id);
