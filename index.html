@@ -351,9 +351,8 @@
           } catch (err) {
             console.error('Error cargando datos de la nube:', err);
             if (mounted) {
-              setData(null);
-              setCloudReady(false);
-              alert('No se pudieron cargar los datos de la nube. Comprueba la configuración de Supabase.');
+             setCloudReady(false);
+alert('No se pudieron cargar los datos de la nube. Comprueba la configuración de Supabase.');
             }
           }
         };
