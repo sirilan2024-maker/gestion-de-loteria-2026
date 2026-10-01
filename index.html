@@ -321,10 +321,10 @@
       useEffect(() => {
         let mounted = true;
         const loadForSession = async (currentSession) => {
-          if (!currentSession) {
-            if (mounted) { setSession(null); setData(null); setCloudReady(false); }
-            return;
-          }
+       if (!currentSession) {
+  if (mounted) { setSession(null); setCloudReady(false); }
+  return;
+}
           setSession(currentSession);
           setCloudReady(false);
           try {
@@ -1080,6 +1080,9 @@ const priceProfiles = data?.settings?.priceProfiles || [
         const totalCostAmount = requestedDecimos * costPrice;
         const totalProfitAmount = requestedDecimos * surcharge;
         const totalAmount = requestedDecimos * sellingPrice;
+
+
+
 
         let paidAmount = 0;
         if (distData.paymentState === 'paid') paidAmount = totalAmount;
