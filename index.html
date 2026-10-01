@@ -418,10 +418,12 @@ const priceProfiles = data?.settings?.priceProfiles || [
   );
 }, [data, activeCampaign.id]);
 
-      const currentPayments = useMemo(() => {
-        return (data.payments || []).filter(p => p.campaignId === activeCampaign.id);
-      }, [data.payments, activeCampaign.id]);
-
+    const currentPayments = useMemo(() => {
+  if (!data) return [];
+  return (data.payments || []).filter(
+    p => p.campaignId === activeCampaign.id
+  );
+}, [data, activeCampaign.id]);
       const currentLoteroPayments = useMemo(() => {
         return (data.loteroPayments || []).filter(p => p.campaignId === activeCampaign.id);
       }, [data.loteroPayments, activeCampaign.id]);
