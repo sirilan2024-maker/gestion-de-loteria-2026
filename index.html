@@ -405,8 +405,9 @@ const priceProfiles = data?.settings?.priceProfiles || [
 ];
       // --- FILTROS ESTRICTOS POR CAMPAÑA ACTIVA ---
       const currentLotteryEntries = useMemo(() => {
-        return data.lotteryEntries.filter(e => e.campaignId === activeCampaign.id);
-      }, [data.lotteryEntries, activeCampaign.id]);
+  if (!data) return [];
+  return data.lotteryEntries.filter(e => e.campaignId === activeCampaign.id);
+}, [data, activeCampaign.id]);
 
       const currentDistributions = useMemo(() => {
         return data.distributions.filter(d => d.campaignId === activeCampaign.id && d.status !== 'cancelled' && d.decimos > 0);
