@@ -390,8 +390,12 @@
       };
 
       const activeCampaign = useMemo(() => {
-        return data.campaigns.find(c => c.id === data.activeCampaignId) || data.campaigns[0] || { id: 'camp_default', name: 'Campaña General', defaultCostPrice: 20, defaultSurcharge: 3, status: 'active' };
-      }, [data.campaigns, data.activeCampaignId]);
+  if (!data) return { id: 'camp_default', name: 'Campaña General', defaultCostPrice: 20, defaultSurcharge: 3, status: 'active' };
+
+  return data.campaigns.find(c => c.id === data.activeCampaignId)
+    || data.campaigns[0]
+    || { id: 'camp_default', name: 'Campaña General', defaultCostPrice: 20, defaultSurcharge: 3, status: 'active' };
+}, [data]);
 
       const isCampaignClosed = activeCampaign.status === 'closed';
       const clubEntityName = data.settings.clubEntityName || '⭐ Lotería de la Peña / Asociación';
